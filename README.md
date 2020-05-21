@@ -41,6 +41,10 @@ $ npm start
 }
 ```
 
+## TODO
+* Remove some unused tags from content html received
+* Get Date from received response
+
 ## LICENSE
 This project is licensed under the terms of the <b>MIT</b> license.
 

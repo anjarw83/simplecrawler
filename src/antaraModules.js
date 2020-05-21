@@ -68,7 +68,7 @@ class antaraNews {
         this.getContent(output)
             .then(resp => {
 
-                console.log('[ INFO ] Parsing Completed', resp);
+                console.log('[ INFO ] Parsing Completed');
                 if(save) this.save(resp);
             }).catch( err => console.log(err));
 
@@ -79,36 +79,43 @@ class antaraNews {
      * @param {Array} mainPage 
      */
     getContent(categoryData){
-        let promise = [], output = [];
+        let promise = [], count = 0;
 
-        for(let i=0;i < LIMIT_NEWS;i++ ){
+        for(let i=0; i < (categoryData.length -1);i++ ){
+
             const el = categoryData[i];
-            promise.push(
-                new Promise( (resolve, reject) => {
-    
-                    axios.get(el.contentUrl,{})
-                        .then( (resp) =>{
-    
-                            const ch = cheerio.load(resp.data);
-                            let contentHtml = ch('article>div.post-content').html();
-                            let quotes = ch('.quote_old').html();
-                            // const ch2 = cheerio.load(contentHtml);
-                            // let articleData = ch('article').find('.article-date');
-                            let articleData = '19 Mei 2020';
-    
-                            contentHtml.replace(`<div class="quote_old">${quotes}</div>`,'');
-    
-                            // console.log(`[ DETAIL ] ${contentHtml}`);
-                            let out2 = {
-                                title: el.title,
-                                content_detail_url : el.contentUrl,
-                                content_date : articleData,
-                                content_html: JSON.stringify( contentHtml )
-                            }
-                            resolve(out2);
-                        }).catch( err => reject(err));
-                })
-            );
+
+            // Only Process Berita
+            const isBerita = /\/berita\//.test(el.contentUrl) ;
+            if ( isBerita && count <= LIMIT_NEWS ) {
+                count++;
+                promise.push(
+                    new Promise( (resolve, reject) => {
+        
+                        axios.get(el.contentUrl,{})
+                            .then( (resp) =>{
+        
+                                const ch = cheerio.load(resp.data);
+                                let contentHtml = ch('article>div.post-content').html();
+                                let quotes = ch('.quote_old').html();
+                                // const ch2 = cheerio.load(contentHtml);
+                                // let articleData = ch('article').find('.article-date');
+                                let articleData = '19 Mei 2020';
+        
+                                contentHtml.replace(`<div class="quote_old">${quotes}</div>`,'');
+        
+                                // console.log(`[ DETAIL ] ${contentHtml}`);
+                                let out2 = {
+                                    title: el.title,
+                                    content_detail_url : el.contentUrl,
+                                    content_date : articleData,
+                                    content_html: JSON.stringify( contentHtml )
+                                }
+                                resolve(out2);
+                            }).catch( err => reject(err));
+                    })
+                );
+            }
         }
         // let el = this.tmpData[0];
 
